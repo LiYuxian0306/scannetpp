@@ -24,3 +24,4 @@ downscale_factor: 2.0
 out_image_dir: undistorted_images
 out_mask_dir: undistorted_anon_masks
 out_transforms_path: nerfstudio/transforms_undistorted.json
+output_root: /home/kylin/lyx/project_study/ExCap3D/data/dslr
