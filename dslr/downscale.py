@@ -112,9 +112,18 @@ def main(args):
         else:
             input_transforms_path = scene.dslr_dir / input_transforms_path
 
-        out_image_dir = scene.dslr_dir / cfg.out_image_dir
-        out_mask_dir = scene.dslr_dir / cfg.out_mask_dir
-        out_transforms_path = scene.dslr_dir / cfg.out_transforms_path
+        # Support custom output root directory (for read-only input directories)
+        output_root = cfg.get("output_root", None)
+        if output_root is None:
+            # Default behavior: output to scene.dslr_dir
+            output_base = scene.dslr_dir
+        else:
+            # Use custom output root: output_root / scene_id / dslr
+            output_base = Path(output_root) / scene_id / scene.dslr_folder_name
+        
+        out_image_dir = output_base / cfg.out_image_dir
+        out_mask_dir = output_base / cfg.out_mask_dir
+        out_transforms_path = output_base / cfg.out_transforms_path
 
         transforms = load_json(input_transforms_path)
         assert len(transforms["frames"]) > 0

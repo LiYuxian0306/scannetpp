@@ -116,7 +116,15 @@ def main(args):
         print("scene_id: ", scene_id)
         scene = ScannetppScene_Release(scene_id, data_root=Path(cfg.data_root) / "data")
 
-        output_dslr_dir = Path(cfg.data_root) / "data" / scene_id / "dslr_undistorted_by_iphone"
+        # Support custom output root directory (for read-only input directories)
+        output_root = cfg.get("output_root", None)
+        if output_root is None:
+            # Default behavior: output to data_root/data/{scene_id}/dslr_undistorted_by_iphone
+            output_dslr_dir = Path(cfg.data_root) / "data" / scene_id / "dslr_undistorted_by_iphone"
+        else:
+            # Use custom output root: output_root/data/{scene_id}/dslr_undistorted_by_iphone
+            output_dslr_dir = Path(output_root) / "data" / scene_id / "dslr_undistorted_by_iphone"
+        
         if not os.path.exists(output_dslr_dir):
             os.makedirs(output_dslr_dir, exist_ok=True)
 
