@@ -81,18 +81,47 @@ def update_transforms_json(transforms, new_K, new_height, new_width):
 def main(args):
     cfg = load_yaml_munch(args.config_file)
 
-    # get the scenes to process
     if cfg.get("scene_ids"):
         scene_ids = cfg.scene_ids
     elif cfg.get("splits"):
         scene_ids = []
+        # 从配置文件读取限制数量，如果没有则为None
+        limit = cfg.get("max_scenes_per_split", None)
         for split in cfg.splits:
+            # data_root 现在是你存放 splits 文件夹的目录
             split_path = Path(cfg.data_root) / "splits" / f"{split}.txt"
-            scene_ids += read_txt_list(split_path)
+            scenes_from_file = read_txt_list(split_path)
+            # 如果设置了 limit，则只截取前 limit 个场景
+            if limit is not None and limit > 0:
+                scene_ids += scenes_from_file[:limit]
+            else:
+                # 如果没有设置 limit，则添加所有场景
+                scene_ids += scenes_from_file
+    # --- 修改结束 ---
 
     # get the options to process
     # go through each scene
     for scene_id in tqdm(scene_ids, desc="scene"):
+        if not cfg.get("input_root") or not cfg.get("output_root"):
+            raise ValueError("Configuration file must specify 'input_root' and 'output_root' for custom path handling.")
+
+        # 2. 基于新的根目录和场景ID，手动构建输入路径
+        # input_root 指向你的 undistorted 数据根目录
+        scene_input_base = Path(cfg.input_root) / scene_id
+        input_image_dir = scene_input_base / cfg.get("input_image_dir", "images")
+        input_mask_dir = scene_input_base / cfg.get("input_mask_dir", "masks")
+        input_transforms_path = scene_input_base / cfg.get("input_transforms_path", "transforms.json")
+
+        # 3. 基于新的根目录和场景ID，手动构建输出路径
+        scene_output_base = Path(cfg.output_root) / scene_id
+        out_image_dir = scene_output_base / cfg.out_image_dir
+        out_mask_dir = scene_output_base / cfg.out_mask_dir
+        out_transforms_path = scene_output_base / cfg.out_transforms_path
+
+
+
+
+        print(f"Processing scene: {scene_id}")
         scene = ScannetppScene_Release(scene_id, data_root=Path(cfg.data_root) / "data")
         input_image_dir = cfg.get("input_image_dir", None)
         if input_image_dir is None:

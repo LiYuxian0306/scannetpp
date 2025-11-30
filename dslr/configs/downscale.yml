@@ -1,7 +1,9 @@
 # folder where the data is downloaded
-data_root: DATA_ROOT
+data_root: /home/kylin/datasets/scannetpp/scannetpp
+input_root: /home/kylin/lyx/project_study/ExCap3D/data/dslr_processed/undistorted
 
 splits: [nvs_sem_train, nvs_sem_val]
+max_scenes_per_split: 10
 
 # scene_ids: [355e5e32db]
 
@@ -24,4 +26,4 @@ downscale_factor: 2.0
 out_image_dir: resized_images_2
 out_mask_dir: resized_anon_masks_2
 out_transforms_path: nerfstudio/transforms_2.json
-output_root: /home/kylin/lyx/project_study/ExCap3D/data/dslr
+output_root: /home/kylin/lyx/project_study/ExCap3D/data/dslr_processed/downscaled
