@@ -108,9 +108,17 @@ def main(args):
         scene_ids = cfg.scene_ids
     elif cfg.get("splits"):
         scene_ids = []
+        limit = cfg.get("max_scenes_per_split", None)
         for split in cfg.splits:
             split_path = Path(cfg.data_root) / "splits" / f"{split}.txt"
-            scene_ids += read_txt_list(split_path)
+            # 先读取该split文件中的所有场景
+            scenes_from_file = read_txt_list(split_path)
+            # 如果设置了limit，则只截取前limit个场景
+            if limit is not None and limit > 0:
+                scene_ids += scenes_from_file[:limit]
+            else:
+                # 如果没有设置limit，则保持原样，添加所有场景
+                scene_ids += scenes_from_file
 
     # get the options to process
     # go through each scene

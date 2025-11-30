@@ -2,6 +2,7 @@
 data_root: DATA_ROOT
 
 splits: [nvs_sem_train, nvs_sem_val]
+max_scenes_per_split: 10
 
 # scene_ids: [355e5e32db]
 
