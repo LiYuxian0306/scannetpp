@@ -1,5 +1,5 @@
 # folder where the data is downloaded
-data_root: /home/kylin/datasets/scannetpp/scannetpp/data
+data_root: /home/kylin/datasets/scannetpp/scannetpp
 
 # Set True to render depth for iphone frames
 render_iphone: True
