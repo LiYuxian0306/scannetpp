@@ -20,16 +20,22 @@ from common.utils.utils import run_command, load_yaml_munch, load_json, read_txt
 def main(args):
     cfg = load_yaml_munch(args.config_file)
 
-    # get the scenes to process, specify any one
-    if cfg.get('scene_list_file'):
-        scene_ids = read_txt_list(cfg.scene_list_file)
-    elif cfg.get('scene_ids'):
+    if cfg.get("scene_ids"):
         scene_ids = cfg.scene_ids
-    elif cfg.get('splits'):
+    elif cfg.get("splits"):
         scene_ids = []
+        # 从配置文件读取限制数量，如果没有则为None
+        limit = cfg.get("max_scenes_per_split", None)
         for split in cfg.splits:
-            split_path = Path(cfg.data_root) / 'splits' / f'{split}.txt'
-            scene_ids += read_txt_list(split_path)
+            # data_root 现在是你存放 splits 文件夹的目录
+            split_path = Path(cfg.data_root) / "splits" / f"{split}.txt"
+            scenes_from_file = read_txt_list(split_path)
+            # 如果设置了 limit，则只截取前 limit 个场景
+            if limit is not None and limit > 0:
+                scene_ids += scenes_from_file[:limit]
+            else:
+                # 如果没有设置 limit，则添加所有场景
+                scene_ids += scenes_from_file
 
     output_dir = cfg.get("output_dir")
     if output_dir is None:

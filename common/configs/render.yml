@@ -1,5 +1,5 @@
 # folder where the data is downloaded
-data_root: DATA_ROOT
+data_root: /home/kylin/datasets/scannetpp/scannetpp/data
 
 # Set True to render depth for iphone frames
 render_iphone: True
@@ -7,6 +7,7 @@ render_iphone: True
 render_dslr: False
 
 splits: [nvs_sem_train, nvs_sem_val]
+max_scenes_per_split: 10
 
 # Specify scene ids if you want to render depth for specific scenes
 # scene_ids: [355e5e32db]
@@ -16,4 +17,4 @@ near: 0.05
 far: 20.0
 
 # Output directory for the rendered depth images. If not given, the output will be saved to data folder in data_root
-# output_dir: OUTPUT_DIR
+output_dir: /home/kylin/lyx/project_study/ExCap3D/data/dslr_processed/rendered
