@@ -1,5 +1,5 @@
 data:
-  data_root: /home/kylin/datasets/scannetpp/scannetpp
+  data_root: /home/kylin/datasets/scannetpp/scannetpp/data
 
   labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/top100.txt
   
