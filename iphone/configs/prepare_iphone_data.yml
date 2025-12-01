@@ -1,0 +1,16 @@
+# extract RGB frames
+extract_rgb: true
+# extract anonymization masks
+extract_masks: true
+# extract depth frames
+extract_depth: true
+max_scenes_per_split: 10
+
+# folder where the data is downloaded
+data_root: /home/kylin/datasets/scannetpp/scannetpp
+
+splits: [nvs_sem_train, nvs_sem_val]
+
+output_root: /home/kylin/lyx/project_study/ExCap3D/data/iphone_processed
+
+# scene_ids: [ebff4de90b]

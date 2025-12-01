@@ -81,21 +81,49 @@ def extract_depth(scene):
 def main(args):
     cfg = load_yaml_munch(args.config_file)
 
-    # get the scenes to process, specify any one
-    if cfg.get('scene_list_file'):
-        scene_ids = read_txt_list(cfg.scene_list_file)
-    elif cfg.get('scene_ids'):
+    # --- 新增代码：检查 output_root 是否在配置文件中 ---
+    if not cfg.get("output_root"):
+        print("Error: 'output_root' not found in the config file.")
+        print("Please specify the output directory in your .yml file.")
+        sys.exit(1)
+    # --- 新增代码结束 ---
+
+    if cfg.get("scene_ids"):
         scene_ids = cfg.scene_ids
-    elif cfg.get('splits'):
+    elif cfg.get("splits"):
         scene_ids = []
+        # 从配置文件读取限制数量，如果没有则为None
+        limit = cfg.get("max_scenes_per_split", None)
         for split in cfg.splits:
-            split_path = Path(cfg.data_root) / 'splits' / f'{split}.txt'
-            scene_ids += read_txt_list(split_path)
+            # data_root 现在是你存放 splits 文件夹的目录
+            split_path = Path(cfg.data_root) / "splits" / f"{split}.txt"
+            scenes_from_file = read_txt_list(split_path)
+            # 如果设置了 limit，则只截取前 limit 个场景
+            if limit is not None and limit > 0:
+                scene_ids += scenes_from_file[:limit]
+            else:
+                # 如果没有设置 limit，则添加所有场景
+                scene_ids += scenes_from_file
 
     # get the options to process
     # go through each scene
     for scene_id in tqdm(scene_ids, desc='scene'):
+        # 步骤 1: 使用原始的 data_root 初始化 scene 对象
+        # 这可以确保所有的输入路径 (如 .mp4, .depth) 都是正确的
         scene = ScannetppScene_Release(scene_id, data_root=Path(cfg.data_root) / 'data')
+
+        # --- 修改核心部分：重写输出路径 ---
+        # 步骤 2: 根据 cfg.output_root 构建新的输出基路径
+        # 我们将保持与原数据相似的目录结构，即 output_root/data/scene_id/
+        scene_output_base = Path(cfg.output_root) / 'data' / scene.scene_id
+        
+        # 步骤 3: 手动覆盖 scene 对象的输出目录属性
+        # ScannetppScene_Release 内部可能会将路径定义为 '.../iphone/rgb' 等
+        # 我们在这里重新构建这些路径，但让它们指向新的输出基路径
+        scene.iphone_rgb_dir = scene_output_base / 'iphone' / 'rgb'
+        scene.iphone_video_mask_dir = scene_output_base / 'iphone' / 'video_masks'
+        scene.iphone_depth_dir = scene_output_base / 'iphone' / 'depth'
+        # --- 修改结束 ---
 
         if cfg.extract_rgb:
             extract_rgb(scene)
