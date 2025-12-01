@@ -20,17 +20,52 @@ class MapLabelToIndex:
             self.class_names, self.label_mapping = keep_classes, None
         # use a mapping file
         elif mapping_file:
-            self.class_names = labels
+            # <<< MODIFICATION START >>>
+            # 我们在这里重构逻辑
             mapping = pd.read_csv(mapping_file)
             print('Classes before mapping:', len(mapping))
-            mapped_classes, self.label_mapping = filter_map_classes(mapping, count_thresh, 
-                                    count_type='count', mapping_type='semantic')
-            print('Classes after mapping:', len(mapped_classes))
+
+            # --- STRATEGY 1: 原始的动态频率过滤逻辑 ---
+            # 仅当 count_thresh 是一个有效的正数时，才执行这个分支
+            if count_thresh and count_thresh > 0:
+                print(f"Using dynamic frequency filtering with threshold: {count_thresh}")
+                self.class_names = labels # 此时 labels 可能是所有类别
+                # 这就是会触发错误的老代码
+                mapped_classes, self.label_mapping = filter_map_classes(mapping, count_thresh, 
+                                        count_type='count', mapping_type='semantic')
+                print('Classes after mapping:', len(mapped_classes))
+
+            # --- STRATEGY 2: 使用静态列表 (例如 top100.txt) 的新逻辑 ---
+            # 否则，执行我们期望的、不依赖 'count' 列的逻辑
+            else:
+                print(f"Using static class list from: {labels_path}")
+                # 在这种模式下，我们期望的最终类别就是 labels_path 文件里定义的那些
+                self.class_names = labels
+                target_classes_set = set(self.class_names)
+                
+                self.label_mapping = {}
+                # 遍历 map_benchmark.csv 的每一行
+                for _, row in mapping.iterrows():
+                    raw_name = row['class']
+                    # 在这个版本的代码中，标准化的列名是 'semantic_map_to'
+                    # (请根据您的 map_benchmark.csv 文件确认此列名是否正确)
+                    standardized_name = row.get('semantic_map_to', row.get('semantic')) # 兼容不同版本的列名
+
+                    # 如果这一行映射到的标准类别，在我们想要的目标列表 (top100) 中
+                    if standardized_name in target_classes_set:
+                        # 我们就创建一个从 "原始标签名" 到 "标准标签名" 的映射
+                        # 例如: {'books': 'book', 'armchair': 'chair', ...}
+                        self.label_mapping[raw_name] = standardized_name
+                
+                print(f'Created a label mapping for {len(target_classes_set)} target classes based on the provided list.')
+            # <<< MODIFICATION END >>>
+
         else:
             self.class_names, self.label_mapping = labels, None
 
         self.ignore_label = ignore_label
         # map class name to index 0..N in the same order
+        # 这一步是核心：它将最终的 class_names (例如 top100 列表) 映射到 0-99 的索引
         self.mapping = {label: ndx for (ndx, label) in enumerate(self.class_names)}
 
     def get_mapping(self):
@@ -48,38 +83,20 @@ class MapLabelToIndex:
 
             # need to remap labels? eg. books->book
             if self.label_mapping is not None:
+                # 使用我们新创建的 label_mapping 来转换标签
+                # 如果一个原始标签不在映射表里，它会被映射为 None
                 label = self.label_mapping.get(label, None)
                 # in case label is remapped - put the new label into the anno dict
                 sample['anno']['segGroups'][ndx]['label'] = label
 
             # name -> 0..N, else ignore label
+            # 使用最终的 mapping (标准名 -> 索引) 来获取整数标签
             label_ndx = self.mapping.get(label, self.ignore_label)
 
             sample['anno']['segGroups'][ndx]['label_ndx'] = label_ndx 
 
         return sample
 
-class AddSegmentIDs:
-    def __init__(self):
-        pass
-    
-    def __call__(self, sample):
-        seg_indices = np.array(sample['segments']['segIndices'], dtype=np.uint32)
-        sample['vtx_segment_ids'] = seg_indices
-        
-        return sample
-
-class AddVertexNormals:
-    def __init__(self):
-        pass
-    
-    def __call__(self, sample):
-        if not sample['o3d_mesh'].has_vertex_normals():
-            sample['o3d_mesh'].compute_vertex_normals()
-            
-        sample['vtx_normals'] = np.asarray(sample['o3d_mesh'].vertex_normals)
-        
-        return sample
 
 class GetLabelsOnVertices:
     '''
