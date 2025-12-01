@@ -1,10 +1,12 @@
 data:
   data_root: /home/kylin/datasets/scannetpp/scannetpp
 
-  labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_classes.txt
+  labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/top100.txt
+  
   # for instance segmentation
   use_instances: true
-  instance_labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/instance_classes.txt
+  instance_labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/top100_instance.txt
+  
   ## save multiple labels per vertex/point? ##
   # multilabel:
   #   max_gt: 3
