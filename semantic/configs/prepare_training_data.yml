@@ -1,18 +1,16 @@
 data:
   data_root: /home/kylin/datasets/scannetpp/scannetpp
 
-  labels_path: /home/kylin/datasets/scannetpp/scannetpp
+  labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_classes.txt
   # for instance segmentation
   use_instances: true
-  instance_labels_path: /home/kylin/datasets/scannetpp/scannetpp
-
+  instance_labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/instance_classes.txt
   ## save multiple labels per vertex/point? ##
   # multilabel:
   #   max_gt: 3
   #   multilabel_only: false
 
-  mapping_file: /home/kylin/datasets/scannetpp/scannetpp
-
+  mapping_file: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/map_benchmark.csv 
   list_path:  /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/train.txt
 
   ignore_label: -100
