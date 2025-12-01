@@ -7,8 +7,8 @@ save_npy: false
 save_txt: true
 
 ## SEMANTIC
-save_semantic: false
-sem_out_dir: <out dir for semantic GT>
+save_semantic: true
+sem_out_dir:  /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed/semantic_gt_txt
 
 ## INSTANCE
 save_instance: false
