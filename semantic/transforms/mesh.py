@@ -97,6 +97,29 @@ class MapLabelToIndex:
 
         return sample
 
+class AddSegmentIDs:
+    def __init__(self):
+        pass
+    
+    def __call__(self, sample):
+        seg_indices = np.array(sample['segments']['segIndices'], dtype=np.uint32)
+        sample['vtx_segment_ids'] = seg_indices
+        
+        return sample
+
+class AddVertexNormals:
+    def __init__(self):
+        pass
+    
+    def __call__(self, sample):
+        if not sample['o3d_mesh'].has_vertex_normals():
+            sample['o3d_mesh'].compute_vertex_normals()
+            
+        sample['vtx_normals'] = np.asarray(sample['o3d_mesh'].vertex_normals)
+        
+        return sample
+
+
 
 class GetLabelsOnVertices:
     '''
