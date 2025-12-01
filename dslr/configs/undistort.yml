@@ -1,5 +1,5 @@
 # folder where the data is downloaded
-data_root: DATA_ROOT
+data_root: /home/kylin/datasets/scannetpp/scannetpp
 
 splits: [nvs_sem_train, nvs_sem_val]
 max_scenes_per_split: 10

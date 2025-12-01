@@ -13,7 +13,7 @@ from common.scene_release import ScannetppScene_Release
 from common.utils.utils import load_yaml_munch, load_json, read_txt_list
 
 
-def compute_undistort_intrinsic(K, height, width, distortion_params):
+def compute_undistort_intrinsic(K, height, width, distortion_params): #输入：原始内参矩阵 K，图像宽高，以及畸变参数（k1, k2, k3, k4）；输出：新的内参矩阵
     assert len(distortion_params.shape) == 1
     assert distortion_params.shape[0] == 4  # OPENCV_FISHEYE has k1, k2, k3, k4
 
@@ -41,10 +41,10 @@ def undistort_frames(
     out_image_dir,
     out_mask_dir,
 ):
-    new_K = compute_undistort_intrinsic(K, height, width, distortion_params)
+    new_K = compute_undistort_intrinsic(K, height, width, distortion_params) # 计算新的内参矩阵
     map1, map2 = cv2.fisheye.initUndistortRectifyMap(
         K, distortion_params, np.eye(3), new_K, (width, height), cv2.CV_32FC1
-    )
+    ) #initUndistortRectifyMap：去畸变不是对每个像素实时计算公式，而是预先生成一张“查找表”（Map）。map1和map2分别存储x和y方向的映射关系。
 
     for frame in tqdm(frames, desc="frame"):
         image_path = Path(input_image_dir) / frame["file_path"]
@@ -84,7 +84,7 @@ def undistort_frames(
     return new_K
 
 
-def update_transforms_json(transforms, new_K, new_height, new_width):
+def update_transforms_json(transforms, new_K, new_height, new_width): #更新transforms.json文件中的内参矩阵
     new_transforms = deepcopy(transforms)
     new_transforms["h"] = new_height
     new_transforms["w"] = new_width
@@ -214,3 +214,16 @@ if __name__ == "__main__":
     args = p.parse_args()
 
     main(args)
+
+
+"""
+输入：
+带有鱼眼畸变的 RGB 图片和 Mask。
+一个 transforms.json，描述了鱼眼相机的内参和畸变系数。
+处理：
+利用 OpenCV 的 fisheye 模块计算去畸变映射表。
+使用 remap 重采样像素，生成无畸变图片。
+更新内参矩阵以匹配新图片。
+输出：
+无畸变的（针孔模型）图片和 Mask。
+一个新的 transforms.json，描述了理想针孔相机参数。"""
