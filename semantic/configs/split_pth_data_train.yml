@@ -1,5 +1,5 @@
 
-prop_type: vtx_
+prop_type: sampled_ #changed from vtx_
 # prop_type: sampled_
 
 # training: keep only chunks with atleast these many points
