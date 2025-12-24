@@ -1,19 +1,19 @@
 data:
-  data_root: /home/kylin/datasets/scannetpp/scannetpp/data
+  data_root: /home/kylin/datasets/scannetpp_v2/scannetpp/data
 
-  labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/top100.txt
+  labels_path: /home/kylin/datasets/scannetpp_v2/scannetpp/metadata/semantic_benchmark/top100.txt
   
   # for instance segmentation
   use_instances: true
-  instance_labels_path: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/top100_instance.txt
+  instance_labels_path: /home/kylin/datasets/scannetpp_v2/scannetpp/metadata/semantic_benchmark/top100_instance.txt
   
   ## save multiple labels per vertex/point? ##
   # multilabel:
   #   max_gt: 3
   #   multilabel_only: false
 
-  mapping_file: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/map_benchmark.csv 
-  list_path:  /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/train.txt
+  mapping_file: /home/kylin/datasets/scannetpp_v2/scannetpp/metadata/semantic_benchmark/map_benchmark.csv 
+  list_path:  null
 
   ignore_label: -100
 
@@ -30,4 +30,4 @@ data:
     - sample_points_on_mesh
 
 # dir to save pth training data
-out_dir: /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed
+out_dir: /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed/semantic_processed_unchunked
