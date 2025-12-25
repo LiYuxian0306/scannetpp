@@ -8,13 +8,13 @@ viz_mesh: false
 use_sampled: true
 
 # viz on mesh? load mesh separately
-data_root: /home/kylin/datasets/scannetpp/scannetpp/data
+data_root: /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed/chunked
 
 viz_semantic: true
 viz_instances: true
 
-scene_list: /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/train.txt
-pth_dir: /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed/semantic_processed_unchunked
+scene_list: /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/train_chunked.txt
+pth_dir: /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed/chunked
 out_dir: /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed/visualized_ply
 
 output_suffix:
