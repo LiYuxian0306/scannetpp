@@ -1,0 +1,27 @@
+# folder where the data is downloaded
+data_root: /home/kylin/datasets/scannetpp/scannetpp
+
+splits: [nvs_sem_train, nvs_sem_val]
+
+# scene_ids: [355e5e32db]
+
+# The following paths should be given relative to the DATA_ROOT/dslr/
+# If not given, will use the default directory defined in ScannetppScene class
+
+# input_image_dir: resized_images
+# input_mask_dir: resized_anon_masks
+# input_transforms_path: nerfstudio/transforms.json
+
+downscale_factor: 2.0
+
+# Optional: Custom output root directory (for read-only input directories)
+# If not specified, outputs will be written to DATA_ROOT/data/{scene_id}/dslr/
+# If specified, outputs will be written to output_root/data/{scene_id}/dslr/
+# Example: output_root: /path/to/writable/directory
+# output_root: null
+
+# All use the relative path to the output base directory (either DATA_ROOT/data/{scene_id}/dslr/ or output_root/data/{scene_id}/dslr/)
+out_image_dir: undistorted_images
+out_mask_dir: undistorted_anon_masks
+out_transforms_path: nerfstudio/transforms_undistorted.json
+output_root: /home/kylin/lyx/project_study/ExCap3D/data/dslr
