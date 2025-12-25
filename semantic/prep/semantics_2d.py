@@ -201,12 +201,12 @@ def main(cfg : DictConfig) -> None:
                 pix_obj_ids = np.where(np.isin(pix_obj_ids, cfg.filter_obj_ids), pix_obj_ids, -1)
 
             if cfg.viz_obj_ids: # save viz to file
-                out_path = viz_obj_ids_dir / scene_id / f'{image_name}.png'
+                out_path = viz_obj_ids_dir / scene_id / f'{image_name}.jpg'
                 viz_ids(img, pix_obj_ids, out_path)
 
             if cfg.viz_obj_ids_txt:
                 # viz obj ids in different colors and write the obj id in the center of the bbox of the object
-                out_path = viz_obj_ids_txt_dir / scene_id / f'{image_name}.png'
+                out_path = viz_obj_ids_txt_dir / scene_id / f'{image_name}.jpg'
                 viz_obj_ids_txt(img, pix_obj_ids, out_path)
 
             if cfg.save_objid_gt_2d: # save obj ids to pth file
@@ -221,19 +221,18 @@ def main(cfg : DictConfig) -> None:
 
             # create semantics GT and of semantic ids on vertices, -1 = no semantic label
             if cfg.save_semantic_gt_2d:
+                # PNG, no compression
                 out_path = semantics_dir / scene_id / f'{image_name}.png'
                 if cfg.skip_existing_semantic_gt_2d and out_path.exists():
                     print(f'File exists: {out_path}, skipping')
                     continue
-                # use 255 so that it can be saved as a PNG!
                 pix_sem_ids = get_sem_ids_on_2d(pix_obj_ids, anno, semantic_classes, ignore_label=255)
                 out_path.parent.mkdir(parents=True, exist_ok=True)
-                # save to png file, smaller
                 print(f'Saving 2d semantic anno to {out_path}')
                 cv2.imwrite(str(out_path), pix_sem_ids)
 
                 if cfg.viz_semantic_gt_2d:
-                    out_path = semantics_viz_dir / scene_id / f'{image_name}_viz.png'
+                    out_path = semantics_viz_dir / scene_id / f'{image_name}_viz.jpg'
                     out_path.parent.mkdir(parents=True, exist_ok=True)
                     print(f'Saving 2d semantic viz to {out_path}')
                     viz_sem_ids_2d(pix_sem_ids, semantic_colors, out_path)
@@ -289,7 +288,7 @@ def main(cfg : DictConfig) -> None:
                     # crop the object from the image
                     if cfg.save_obj_crop:
                         # TODO: save jpgs, use less space!
-                        img_crop_path = img_crop_dir / scene_id / f'{image_name}_{obj_id}.png'
+                        img_crop_path = img_crop_dir / scene_id / f'{image_name}_{obj_id}.jpg'
                         save_img(img_crop, img_crop_path)
 
                     if cfg.save_obj_crop_nobg or cfg.save_obj_crop_mask:
@@ -303,7 +302,7 @@ def main(cfg : DictConfig) -> None:
                         # set background to black in regions not the current object
                         img_crop_nobg[pix_obj_ids_crop != obj_id] = 0
                         # save
-                        img_crop_nobg_path = img_crop_nobg_dir / scene_id / f'{image_name}_{obj_id}.png'
+                        img_crop_nobg_path = img_crop_nobg_dir / scene_id / f'{image_name}_{obj_id}.jpg'
                         save_img(img_crop_nobg, img_crop_nobg_path)
 
                     if cfg.save_obj_crop_mask:
@@ -313,34 +312,40 @@ def main(cfg : DictConfig) -> None:
                         img_crop_mask[pix_obj_ids_crop != obj_id] = 0
                         # set foreground to white
                         img_crop_mask[pix_obj_ids_crop == obj_id] = 255
+                        # keep only 1 channel
+                        img_crop_mask = img_crop_mask[:, :, 0]
                         # save
+                        # save mask as PNG, no compression
                         img_crop_mask_path = img_crop_mask_dir / scene_id / f'{image_name}_{obj_id}.png'
                         save_img(img_crop_mask, img_crop_mask_path)
 
-                    # draw a bbox around the object and save the full image
-                    # create new image with bbox of the object draw on the full image
-                    img_copy = img.copy()
-                    x, y, w, h = obj_bbox
-                    # convert image RGB to BGR
-                    img_copy = cv2.cvtColor(img_copy, cv2.COLOR_RGB2BGR)
-                    cv2.rectangle(img_copy, (y, x), (y+h, x+w), (0, 0, 255), 2)
-                    # convert back to RGB
-                    img_copy = cv2.cvtColor(img_copy, cv2.COLOR_BGR2RGB)
-                    global_prompt_img_path = bbox_img_dir / scene_id / f'{image_name}_{obj_id}.png'
-                    # save it to file
-                    save_img(img_copy, global_prompt_img_path)
+                    if cfg.save_bbox_img:
+                        # draw a bbox around the object and save the full image
+                        # create new image with bbox of the object draw on the full image
+                        img_copy = img.copy()
+                        x, y, w, h = obj_bbox
+                        # convert image RGB to BGR
+                        img_copy = cv2.cvtColor(img_copy, cv2.COLOR_RGB2BGR)
+                        cv2.rectangle(img_copy, (y, x), (y+h, x+w), (0, 0, 255), 2)
+                        # convert back to RGB
+                        img_copy = cv2.cvtColor(img_copy, cv2.COLOR_BGR2RGB)
+                        bbox_img_path = bbox_img_dir / scene_id / f'{image_name}_{obj_id}.jpg'
+                        # save it to file
+                        save_img(img_copy, bbox_img_path)
 
                     # other useful info for this object
-                    obj_location_3d = np.round(obj_id_locations[obj_id], 2).tolist()
-                    x, y, w, h = obj_bbox
                     # center of the bbox
+                    x, y, w, h = obj_bbox
+                    # 2d properties
                     obj_location_2d = np.round([x + w/2, y + h/2]).tolist()
-                    obj_dims_3d = obj_id_dims[obj_id]
                     # semantic label
                     obj_label = anno['objects'][obj_id]['label']
-                    # vertices in this object
+                    # 3d properties
+                    obj_location_3d = np.round(obj_id_locations[obj_id], 2).tolist()
+                    obj_dims_3d = obj_id_dims[obj_id]
                     obj_mask_3d = vtx_obj_ids == obj_id
 
+                    # 3d outputs
                     # save the object point cloud
                     if cfg.save_obj_pcs:
                         out_path = obj_pcs_dir / scene_id / f'{obj_id}.ply'
