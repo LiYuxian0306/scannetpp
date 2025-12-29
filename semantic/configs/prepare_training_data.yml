@@ -5,7 +5,7 @@ data:
   
   # for instance segmentation
   use_instances: true
-  instance_labels_path: /home/kylin/datasets/scannetpp_v2/scannetpp/metadata/semantic_benchmark/top100_instance.txt
+  instance_labels_path: /home/kylin/datasets/scannetpp_v2/scannetpp/metadata/semantic_benchmark/top100_instance.txt #这里其实是需要实例分割的class，top100_instance.txt 里面有除去floor，wall等之外的85个class
   
   ## save multiple labels per vertex/point? ##
   # multilabel:
