@@ -14,7 +14,7 @@ ignore_label: -100
 instance_frac_threshold: 0.4
 
 # original scene list
-orig_list_path: /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/train.txt
+orig_list_path: /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/process.txt
 # original pth files
 orig_pth_dir: /home/kylin/lyx/project_study/ExCap3D/data/semantic_processed/semantic_processed_unchunked
 

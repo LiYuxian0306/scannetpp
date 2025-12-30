@@ -13,7 +13,7 @@ data:
   #   multilabel_only: false
 
   mapping_file: /home/kylin/datasets/scannetpp/scannetpp/metadata/semantic_benchmark/map_benchmark.csv 
-  list_path:  /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/train.txt
+  list_path:  /home/kylin/lyx/project_study/ExCap3D/code/scannetpp/semantic/configs/process.txt
 
   ignore_label: -100
 
