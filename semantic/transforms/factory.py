@@ -9,7 +9,7 @@ def get_transform(data_cfg):
     transforms = []
 
     if 'add_mesh_vertices' in transforms_list:
-        transforms.append(AddMeshVertices())
+        transforms.append(AddMeshVertices())    #给这个字典多加了两组N*3的NumPy 矩阵，名字分别是vtx_coords和vtx_colors
 
     # map string label to 0..N
     if 'map_label_to_index' in transforms_list:

@@ -30,15 +30,14 @@ class MapLabelToIndex:
             if count_thresh and count_thresh > 0:
                 print(f"Using dynamic frequency filtering with threshold: {count_thresh}")
                 self.class_names = labels # 此时 labels 可能是所有类别
-                # 这就是会触发错误的老代码
                 mapped_classes, self.label_mapping = filter_map_classes(mapping, count_thresh, 
                                         count_type='count', mapping_type='semantic')
                 print('Classes after mapping:', len(mapped_classes))
 
             # --- STRATEGY 2: 使用静态列表 (例如 top100.txt) 的新逻辑 ---
-            # 否则，执行我们期望的、不依赖 'count' 列的逻辑
+            # 不依赖 'count' 列的逻辑（实际执行的逻辑）
             else:
-                print(f"Using static class list from: {labels_path}")
+                print(f"Using static class list from: {labels_path}") 
                 # 在这种模式下，我们期望的最终类别就是 labels_path 文件里定义的那些
                 self.class_names = labels
                 target_classes_set = set(self.class_names)
@@ -47,13 +46,12 @@ class MapLabelToIndex:
                 # 遍历 map_benchmark.csv 的每一行
                 for _, row in mapping.iterrows():
                     raw_name = row['class']
-                    # 在这个版本的代码中，标准化的列名是 'semantic_map_to'
-                    # (请根据您的 map_benchmark.csv 文件确认此列名是否正确)
+                    # 标准化的列名需要是 'semantic_map_to'
                     standardized_name = row.get('semantic_map_to', row.get('semantic')) # 兼容不同版本的列名
 
-                    # 如果这一行映射到的标准类别，在我们想要的目标列表 (top100) 中
+                    # 如果这一行映射到的标准类别，在想要的目标列表 (top100) 中
                     if standardized_name in target_classes_set:
-                        # 我们就创建一个从 "原始标签名" 到 "标准标签名" 的映射
+                        # 创建一个从 "原始标签名" 到 "标准标签名" 的映射
                         # 例如: {'books': 'book', 'armchair': 'chair', ...}
                         self.label_mapping[raw_name] = standardized_name
                 
@@ -65,8 +63,8 @@ class MapLabelToIndex:
 
         self.ignore_label = ignore_label
         # map class name to index 0..N in the same order
-        # 这一步是核心：它将最终的 class_names (例如 top100 列表) 映射到 0-99 的索引
-        self.mapping = {label: ndx for (ndx, label) in enumerate(self.class_names)}
+        # 核心：将最终的 class_names (例如 top100 列表) 映射到 0-99 的索引
+        self.mapping = {label: ndx for (ndx, label) in enumerate(self.class_names)} #eg. {'wall': 0, 'floor': 1, ...}
 
     def get_mapping(self):
         return self.mapping
@@ -83,7 +81,7 @@ class MapLabelToIndex:
 
             # need to remap labels? eg. books->book
             if self.label_mapping is not None:
-                # 使用我们新创建的 label_mapping 来转换标签
+                # 使用新创建的 label_mapping 来转换标签
                 # 如果一个原始标签不在映射表里，它会被映射为 None
                 label = self.label_mapping.get(label, None)
                 # in case label is remapped - put the new label into the anno dict
@@ -273,18 +271,20 @@ class SamplePointsOnMesh:
         new_sample = {'scene_id': sample['scene_id']}
 
         pc = mesh.sample_points_uniformly(int(self.sample_factor * len(sample['vtx_coords'])))	
+        #点的坐标是在面上选的，color是通过计算三个顶点的color得到的
 
         # coords and colors of sampled points
         new_sample['sampled_coords'] = np.array(pc.points)
         new_sample['sampled_colors'] = np.array(pc.colors)
 
-        tree = KDTree(mesh.vertices)
+        tree = KDTree(mesh.vertices)    #用原始网格的顶点构建一棵 KDTree
         # for each sampled point, get the nearest original vertex
-        _, ndx = tree.query(new_sample['sampled_coords'])
+        _, ndx = tree.query(new_sample['sampled_coords']) 
+        #ndx[0] = 5: 对于查询的第 0 个采样点，它在 tree 里的nearest neighbor是原始数据中的第 5 个点
 
         # any vtx properties other than coords and colors
         # get these on the sampled points
-        # rename the property to sample_<property>
+        # rename the property to sample_<property> 这里有名字的改变，而且传递的应该主要是label？
         for k, v in sample.items():
             if k.startswith('vtx_') and k not in ['vtx_coords', 'vtx_colors']:
                 new_sample['sampled_' + k[4:]] = v[ndx]

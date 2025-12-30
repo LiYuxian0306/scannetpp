@@ -101,11 +101,11 @@ class ScannetppScene_Release:
 
     @property
     def scan_mesh_segs_path(self):
-        return self.mesh_dir / f'segments.json'
+        return self.mesh_dir / f'segments.json'     #因为其实就是点的标号
 
     @property
     def scan_anno_json_path(self):
-        return self.mesh_dir / f'segments_anno.json'
+        return self.mesh_dir / f'segments_anno.json'    
 
     @property
     def scan_sem_mesh_path(self):

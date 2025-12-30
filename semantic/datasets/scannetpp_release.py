@@ -27,17 +27,17 @@ class ScannetPP_Release_Dataset(Dataset):
 
         if list_file is not None:
             with open(list_file) as f:
-                scene_list = f.read().splitlines()
+                scene_list = f.read().splitlines() #要是.txt文件有指明场景名就按照那个文件指明的来
         else:
-            scene_list = os.listdir(data_root)
+            scene_list = os.listdir(data_root) #没有指明的话就遍历data_root下面所有的场景
 
         for scene_id in tqdm(scene_list, 'dataset'):
             scene = ScannetppScene_Release(scene_id, data_root=data_root)
+            #遍历 scene_list，并在屏幕上打印一个标签为 dataset 的进度条。
 
-            anno_path = scene.scan_anno_json_path
-            mesh_path = scene.scan_mesh_path
-            segs_path = scene.scan_mesh_segs_path
-
+            anno_path = scene.scan_anno_json_path #segments_anno.json
+            mesh_path = scene.scan_mesh_path  #原始RGB场景 'mesh_aligned_0.05.ply'
+            segs_path = scene.scan_mesh_segs_path  #其实就是点的标号 segments.json
             if anno_path.is_file() and mesh_path.is_file() and segs_path.is_file():
                 self.samples.append({
                     'scene_id': scene_id,
